@@ -1,0 +1,62 @@
+<div class="matx-phone-input-container">
+  <ng-template [ngIf]="_countrySearch" [ngIfElse]="countryWithInput">
+    <div class="matx-phone-input-country-search">
+      <input
+        #countrySearchInput="matInput"
+        type="text"
+        matInput
+        [formControl]="_countrySearchControl"
+        [placeholder]="countrySearchPlaceholder"
+        [matAutocomplete]="countryAutocomplete" />
+    </div>
+    <mat-autocomplete
+      #countryAutocomplete="matAutocomplete"
+      autoActiveFirstOption
+      (optionSelected)="_handleCountrySelect($event.option)"
+      (closed)="_switchToInput()"
+      class="matx-phone-input-countries-autocomplete">
+      <mat-option *ngFor="let country of _filteredCountries; trackBy: _trackByCode" [value]="country.alpha2">
+        <ng-template [ngIf]="showCountryFlag">
+          <ng-container *ngTemplateOutlet="flagRenderer; context: country"></ng-container>
+        </ng-template>
+        {{country.name}}
+        <ng-template [ngIf]="country.localName">
+          ({{country.localName}})
+        </ng-template>
+        <span class="matx-phone-input-country-code">
+          +{{country.callingCode}}
+        </span>
+      </mat-option>
+    </mat-autocomplete>
+  </ng-template>
+  <ng-template #countryWithInput>
+    <div *ngIf="(_selectedCountry || _defaultCountry) as country" [class.matx-phone-input-country-selectable]="selectableCountry" class="matx-phone-input-country">
+      <ng-template [ngIf]="showCountryFlag">
+        <ng-container *ngTemplateOutlet="flagRenderer; context: country"></ng-container>
+      </ng-template>
+      <div class="matx-phone-input-country-code">
+        +{{country.callingCode}}
+      </div>
+      <div *ngIf="selectableCountry" class="matx-phone-input-country-arrow-wrapper">
+        <div class="matx-phone-input-country-arrow"></div>
+      </div>
+    </div>
+    <div class="matx-phone-input-wrapper">
+      <input
+        #phoneNumberInput="matInput"
+        type="text"
+        matInput
+        [formControl]="_phoneControl"
+        [placeholder]="placeholder" />
+    </div>
+  </ng-template>
+</div>
+
+<ng-template #flagRenderer let-alpha2="alpha2" let-name="name" let-flag="flag">
+  <span class="matx-phone-input-country-flag">
+    <ng-template [ngIf]="_flatRenderer" [ngIfElse]="flagUnicodeRenderer">
+      <ng-container *ngTemplateOutlet="_flatRenderer._templateRef; context: { $implicit: alpha2, name: name }"></ng-container>
+    </ng-template>
+    <ng-template #flagUnicodeRenderer>{{flag}}</ng-template>
+  </span>
+</ng-template>
